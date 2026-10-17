@@ -1,0 +1,27 @@
+name: smart_upload_manager
+description: A smart, reliable, persistent, offline-tolerant file upload manager for Flutter with automatic retries, resumable chunked uploads, background support, and notification progress.
+version: 0.1.0
+homepage: https://github.com/example/smart_upload_manager
+repository: https://github.com/example/smart_upload_manager
+
+
+environment:
+  sdk: ^3.10.1
+  flutter: ">=3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.4.0
+  path: ^1.9.0
+  path_provider: ^2.1.2
+  connectivity_plus: ^6.0.5
+  flutter_local_notifications: ^18.0.1
+  uuid: ^4.5.1
+  crypto: ^3.0.5
+  meta: ^1.11.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
