@@ -1,4 +1,4 @@
-## 0.1.0
+## 1.0.0
 
 * Initial release of `smart_upload_manager`.
 * Persistent atomic file storage (`FileQueueStorage`) ensuring queue survives app crashes and restarts.

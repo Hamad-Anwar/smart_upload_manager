@@ -4,7 +4,7 @@
 
 A resilient, persistent, offline-tolerant file upload manager for Flutter with automatic retries, resumable chunked transfers, background notifications, and single & multi-file bundle upload support.
 
-[![pub package](https://img.shields.io/badge/pub-v0.1.0-blue.svg)](https://pub.dev)
+[![pub package](https://img.shields.io/badge/pub-v1.0.0-blue.svg)](https://pub.dev)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-v3.10+-teal.svg)](https://flutter.dev)
 
@@ -86,7 +86,7 @@ A resilient, persistent, offline-tolerant file upload manager for Flutter with a
 Add to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  smart_upload_manager: ^0.1.0
+  smart_upload_manager: ^1.0.0
 ```
 
 ---
