@@ -36,22 +36,22 @@ Normally when building file uploads in mobile apps (videos, camera photos, large
 
 ```mermaid
 graph TD
-    A[User Selects File(s)] --> B[Enqueue Task: Single or Multi-File]
-    B --> C[Atomic Disk Persistence]
-    C --> D{Connectivity Monitor}
-    D -- Online --> E[Upload Manager Queue]
-    D -- Offline --> F[Auto-Pause & Await Reconnect]
-    F -- Reconnected --> E
-    E --> G[Upload Adapters]
-    G --> H[Standard Multipart / Form-Data]
-    G --> I[Resumable Byte-Range Chunks]
-    G --> J[Tus.io Open Protocol]
-    G --> K[AWS S3 Multipart]
-    G --> L[Simulated Mock Transfer]
-    E --> M[System Notification Bar - Progress & Speed]
-    E --> N[UI Streams: Progress, Status, QueueSummary]
-    E -- Success --> O[HTTP 200/201 -> Mark Completed]
-    E -- Transient Error --> P[Exponential Backoff + Jitter Retry]
+    A["User Selects File(s)"] --> B["Enqueue Task: Single or Multi-File"]
+    B --> C["Atomic Disk Persistence"]
+    C --> D{"Connectivity Monitor"}
+    D -->|Online| E["Upload Manager Queue"]
+    D -->|Offline| F["Auto-Pause & Await Reconnect"]
+    F -->|Reconnected| E
+    E --> G["Upload Adapters"]
+    G --> H["Standard Multipart / Form-Data"]
+    G --> I["Resumable Byte-Range Chunks"]
+    G --> J["Tus.io Open Protocol"]
+    G --> K["AWS S3 Multipart"]
+    G --> L["Simulated Mock Transfer"]
+    E --> M["System Notification Bar - Progress & Speed"]
+    E --> N["UI Streams: Progress, Status, QueueSummary"]
+    E -->|Success| O["HTTP 200/201 - Mark Completed"]
+    E -->|Transient Error| P["Exponential Backoff + Jitter Retry"]
     P --> E
 ```
 
