@@ -1,4 +1,6 @@
-# smart_upload_manager
+# Smart Upload Manager
+
+![smart_upload_manager](screenshots/banner.webp)
 
 A resilient, persistent, offline-tolerant file upload manager for Flutter with automatic retries, resumable chunked transfers, background notifications, and single & multi-file bundle upload support.
 
@@ -8,7 +10,6 @@ A resilient, persistent, offline-tolerant file upload manager for Flutter with a
 
 ---
 
-![smart_upload_manager](screenshots/banner.webp)
 
 ---
 
