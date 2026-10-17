@@ -71,6 +71,7 @@ class RetryPolicy {
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
         case DioExceptionType.connectionError:
+        case DioExceptionType.transformTimeout:
           return true;
 
         case DioExceptionType.badResponse:
@@ -89,7 +90,6 @@ class RetryPolicy {
 
         case DioExceptionType.badCertificate:
         case DioExceptionType.unknown:
-        default:
           if (error.error is SocketException || error.error is HttpException) {
             return true;
           }

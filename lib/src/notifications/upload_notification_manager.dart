@@ -63,7 +63,7 @@ class UploadNotificationManager {
         macOS: darwinSettings,
       );
 
-      await _notificationsPlugin.initialize(initSettings);
+      await _notificationsPlugin.initialize(settings: initSettings);
 
       // Create Android channel and request permission
       final androidImplementation = _notificationsPlugin
@@ -168,10 +168,10 @@ class UploadNotificationManager {
     );
 
     await _notificationsPlugin.show(
-      config.summaryNotificationId,
-      'Upload Notification Test',
-      '65% • 3.2 MB/s • 3.5 MB of 5.4 MB',
-      notificationDetails,
+      id: config.summaryNotificationId,
+      title: 'Upload Notification Test',
+      body: '65% • 3.2 MB/s • 3.5 MB of 5.4 MB',
+      notificationDetails: notificationDetails,
     );
     debugPrint('[UploadNotificationManager] Test notification dispatched.');
   }
@@ -351,10 +351,10 @@ class UploadNotificationManager {
       );
 
       await _notificationsPlugin.show(
-        config.summaryNotificationId,
-        title,
-        body,
-        notificationDetails,
+        id: config.summaryNotificationId,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
       );
 
       // Session finished after posting completion
@@ -376,7 +376,7 @@ class UploadNotificationManager {
   Future<void> cancelNotification() async {
     if (!_isInitialized) return;
     try {
-      await _notificationsPlugin.cancel(config.summaryNotificationId);
+      await _notificationsPlugin.cancel(id: config.summaryNotificationId);
     } catch (_) {}
   }
 

@@ -1,4 +1,4 @@
-library smart_upload_manager;
+library;
 
 import 'dart:async';
 import 'dart:io';

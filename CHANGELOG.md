@@ -1,3 +1,10 @@
+## 1.0.1
+
+* Updated dependencies to latest stable versions (`dio: ^5.11.1`, `connectivity_plus: ^7.3.2`, `flutter_local_notifications: ^22.3.2`, `uuid: ^4.6.0`, `crypto: ^3.0.7`, `path_provider: ^2.1.6`, `path: ^1.9.1`, `meta: ^1.17.0`).
+* Added support for `flutter_local_notifications` 22.x named parameters.
+* Handled new `DioExceptionType.transformTimeout` error type.
+* Tightened dependency constraint lower bounds to ensure 100% clean downgrade analysis.
+
 ## 1.0.0
 
 * Initial release of `smart_upload_manager`.
