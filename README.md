@@ -8,6 +8,10 @@ A resilient, persistent, offline-tolerant file upload manager for Flutter with a
 
 ---
 
+![smart_upload_manager](screenshots/banner.webp)
+
+---
+
 ## ✨ Features
 
 - 🛡️ **Crash-Resistant:** Atomic disk persistence ensures pending uploads survive app kills and device reboots.
@@ -21,41 +25,104 @@ A resilient, persistent, offline-tolerant file upload manager for Flutter with a
 
 ---
 
-## 🏗️ Architecture & Flow
+## 📱 Platform Setup
 
-```mermaid
-graph TD
-    A["User Selects File(s)"] --> B["Enqueue Task: Single or Multi-File"]
-    B --> C["Atomic Disk Persistence"]
-    C --> D{"Connectivity Monitor"}
-    D -->|Online| E["Upload Manager Queue"]
-    D -->|Offline| F["Auto-Pause & Await Reconnect"]
-    F -->|Reconnected| E
-    E --> G["Upload Adapters"]
-    G --> H["Standard Multipart / Form-Data"]
-    G --> I["Resumable Byte-Range Chunks"]
-    G --> J["Tus.io Open Protocol"]
-    G --> K["AWS S3 Multipart"]
-    G --> L["Simulated Mock Transfer"]
-    E --> M["System Notification Bar - Progress & Speed"]
-    E --> N["UI Streams: Progress, Status, QueueSummary"]
-    E -->|Success| O["HTTP 200/201 - Mark Completed"]
-    E -->|Transient Error| P["Exponential Backoff + Jitter Retry"]
-    P --> E
-```
+### iOS Setup
+
+1. **Notification Delegate (`ios/Runner/AppDelegate.swift`)**:
+   Ensure upload progress notifications display properly when the app is in the foreground or background:
+   ```swift
+   if #available(iOS 10.0, *) {
+     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+   }
+   ```
+
+2. **Minimum Deployment Target (`ios/Podfile`)**:
+   Set iOS 14.0 or higher:
+   ```ruby
+   platform :ios, '14.0'
+   ```
+
+3. **Photo & File Permissions (`ios/Runner/Info.plist`)**:
+   If picking files from the gallery or documents:
+   ```xml
+   <key>NSPhotoLibraryUsageDescription</key>
+   <string>Allow access to select photos and videos for upload.</string>
+   <key>NSDocumentPickerUsageDescription</key>
+   <string>Allow access to upload selected documents.</string>
+   ```
 
 ---
 
-## 🚀 Quick Start
+### Android Setup
+
+1. **Permissions (`android/app/src/main/AndroidManifest.xml`)**:
+   ```xml
+   <!-- Required for network requests -->
+   <uses-permission android:name="android.permission.INTERNET" />
+   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+   <!-- Required for progress notifications (Android 13+ / API 33+) -->
+   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+   <!-- Optional: foreground service notifications -->
+   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+   ```
+
+2. **Runtime Permission (Android 13+)**:
+   Request notification permissions before starting uploads:
+   ```dart
+   final granted = await SmartUploadManager.instance.requestNotificationPermission();
+   ```
+
+---
+
+## 🚀 Usage
 
 ### 1. Installation
 
+Add to your `pubspec.yaml`:
 ```yaml
 dependencies:
   smart_upload_manager: ^0.1.0
 ```
 
-### 2. Upload a Single File
+---
+
+### 2. Initialize in `main()`
+
+Optionally configure the queue, retry policy, and background notifications:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:smart_upload_manager/smart_upload_manager.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await SmartUploadManager.initialize(
+    maxConcurrentUploads: 2,
+    retryPolicy: const RetryPolicy(maxRetries: 3),
+    notificationConfig: const NotificationConfig(
+      enabled: true, // Set to false to disable system notifications completely
+      channelId: 'smart_upload_channel',
+      channelName: 'File Uploads',
+      channelDescription: 'Ongoing file upload progress and speed',
+    ),
+  );
+
+  runApp(const MyApp());
+}
+```
+
+> **Note on Disabling Notifications:**
+> If you prefer in-app UI only without system drawer notifications, pass:
+> `notificationConfig: const NotificationConfig(enabled: false)`.
+
+---
+
+### 3. Upload a Single File
 
 ```dart
 import 'dart:io';
@@ -73,26 +140,34 @@ final task = await SmartUploadManager.upload(
   onError: (task, error) => print('Error: $error'),
 );
 
-// Or use the File extension directly:
+// Or call directly on any File:
 await File('/path/to/doc.pdf').upload(url: 'https://api.example.com/upload');
 ```
 
-### 3. Upload Multiple Files in One Request (`uploadMultiple`)
+---
+
+### 4. Upload Multiple Files in One Request (`uploadMultiple`)
+
+Bundle multiple files into a single multipart HTTP request:
 
 ```dart
 final task = await SmartUploadManager.uploadMultiple(
   files: ['/path/to/photo1.jpg', '/path/to/photo2.jpg'],
   url: 'https://api.example.com/upload/bundle',
   fileFieldName: 'files',
-  onProgress: (progress, speed, eta) => print('${(progress * 100).toInt()}%'),
+  onProgress: (progress, speed, eta) {
+    print('Total bundle progress: ${(progress * 100).toInt()}%');
+  },
+  onSuccess: (task) => print('All files uploaded: ${task.response}'),
+  onError: (task, error) => print('Error: $error'),
 );
 ```
 
 ---
 
-## 🎨 Pre-Built UI Widgets
+### 5. Pre-Built UI Widgets
 
-Drop in animated UI widgets without boilerplate:
+Drop in animated widgets without writing `StreamBuilder` boilerplate:
 
 ```dart
 // Complete task tile with progress bar, speed, pause/resume, and cancel controls
@@ -101,22 +176,15 @@ UploadTaskTile(
   onDismiss: () => SmartUploadManager.instance.deleteTask(task.id),
 )
 
-// Standalone self-updating progress bar
+// Standalone auto-updating progress bar
 UploadProgressBar(taskId: task.id)
 ```
 
 ---
 
-## 🎛️ Queue Management & Configuration
+### 6. Queue Management & Global Controls
 
 ```dart
-// Optional initialization in main() (defaults apply automatically if omitted)
-await SmartUploadManager.initialize(
-  maxConcurrentUploads: 2,
-  retryPolicy: const RetryPolicy(maxRetries: 3),
-  notificationConfig: const NotificationConfig(enabled: true),
-);
-
 // Global controls
 SmartUploadManager.instance.pauseAll();
 SmartUploadManager.instance.resumeAll();
@@ -146,35 +214,6 @@ Pass `protocol` to `upload()` to select the adapter:
 | **Tus.io** | `UploadProtocol.tus` | Open [tus.io](https://tus.io) servers (Vimeo, Cloudflare, tusd). |
 | **AWS S3 Multipart** | `UploadProtocol.s3Multipart` | AWS S3 multi-part chunked uploads. |
 | **Simulated** | `UploadProtocol.simulated` | Offline mock transfers for testing UI & notifications. |
-
----
-
-<details>
-<summary><b>📱 Platform Setup (Android & iOS Permissions)</b></summary>
-
-### Android
-Add permissions in `android/app/src/main/AndroidManifest.xml`:
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-```
-*(Android 13+)*: Request runtime permission if using notifications:
-```dart
-await SmartUploadManager.instance.requestNotificationPermission();
-```
-
-### iOS
-Set minimum deployment target in `ios/Podfile`:
-```ruby
-platform :ios, '14.0'
-```
-Add to `ios/Runner/Info.plist` (if picking from camera/gallery):
-```xml
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Allow access to select files for upload.</string>
-```
-</details>
 
 ---
 
